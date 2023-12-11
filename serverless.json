@@ -1,0 +1,172 @@
+{
+  "service": "ramzeis-store",
+  "useDotenv": true,
+  "provider": {
+    "name": "aws",
+    "stage": "${opt:stage}",
+    "runtime": "nodejs20.x",
+    "deploymentMethod": "direct",
+    "region": "us-east-1",
+    "iam": {
+      "role": {
+        "statements": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:DescribeTable",
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:GetItem",
+              "dynamodb:PutItem",
+              "dynamodb:UpdateItem",
+              "dynamodb:DeleteItem"
+            ],
+            "Resource": "arn:aws:dynamodb:us-east-1:*:*"
+          }
+        ]
+      }
+    }
+  },
+  "frameworkVersion": "3.38.0",
+  "functions": {
+    "create-address": {
+      "handler": "src/addresses/createAddress.handler",
+      "description": "Creates an address for the specified buyer.",
+      "events": [
+        {
+          "httpApi": { "method": "POST", "path": "/buyers/{buyerId}/addresses" }
+        }
+      ],
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": ["dynamodb:PutItem"],
+          "Resource": "arn:aws:dynamodb:us-east-1:*:*"
+        }
+      ]
+    },
+    "delete-address": {
+      "handler": "src/addresses/deleteAddress.handler",
+      "description": "Deletes the specified address from the specified buyer addresses.",
+      "events": [
+        {
+          "httpApi": {
+            "method": "DELETE",
+            "path": "/buyers/{buyerId}/addresses/{addressId}"
+          }
+        }
+      ]
+    },
+    "get-addresses-per-buyer": {
+      "handler": "src/addresses/getAddressesPerBuyer.handler",
+      "description": "Gets all of the addresses for the specified buyer.",
+      "events": [
+        {
+          "httpApi": { "method": "GET", "path": "/buyers/{buyerId}/addresses" }
+        }
+      ]
+    },
+    "update-address": {
+      "handler": "src/addresses/updateAddress.handler",
+      "description": "Updates the specified address for the specified buyer.",
+      "events": [
+        {
+          "httpApi": {
+            "method": "PATCH",
+            "path": "/buyers/{buyerId}/addresses/{addressId}"
+          }
+        }
+      ]
+    },
+    "create-buyer": {
+      "handler": "src/buyers/createBuyer.handler",
+      "description": "Creates a buyer both on the Cognito User Pool and DynamoDB.",
+      "events": [{ "httpApi": { "method": "POST", "path": "/buyers" } }]
+    },
+    "delete-buyer": {
+      "handler": "src/buyers/deleteBuyer.handler",
+      "description": "Deletes a buyer both from the Cognito User Pool and DynamoDB.",
+      "events": [
+        { "httpApi": { "method": "DELETE", "path": "/buyers/{buyerId}" } }
+      ]
+    },
+    "get-cart": {
+      "handler": "src/carts/getCart.handler",
+      "description": "Gets the car of the specified buyer.",
+      "events": [
+        { "httpApi": { "method": "GET", "path": "/buyers/{buyerId}/cart" } }
+      ]
+    },
+    "update-cart": {
+      "handler": "src/carts/updateCart.handler",
+      "description": "Updates the car of the specified buyer.",
+      "events": [
+        { "httpApi": { "method": "PATCH", "path": "/buyers/{buyerId}/cart" } }
+      ]
+    },
+    "get-colors": {
+      "handler": "src/colors/getColors.handler",
+      "description": "Gets all of the available colors for product filtering by color.",
+      "events": [{ "httpApi": { "method": "GET", "path": "/colors" } }]
+    },
+    "create-order": {
+      "handler": "src/orders/createOrder.handler",
+      "description": "Creates an order.",
+      "events": [{ "httpApi": { "method": "POST", "path": "/orders" } }]
+    },
+    "get-orders": {
+      "handler": "src/orders/getOrders.handler",
+      "description": "Gets all of the orders.",
+      "events": [{ "httpApi": { "method": "GET", "path": "/orders" } }]
+    },
+    "get-orders-per-buyer": {
+      "handler": "src/orders/getOrdersPerBuyer.handler",
+      "description": "Gets all of the orders related to the specified buyer.",
+      "events": [
+        { "httpApi": { "method": "GET", "path": "/buyers/{buyerId}/orders" } }
+      ]
+    },
+    "update-order": {
+      "handler": "src/orders/updateOrder.handler",
+      "description": "Updates the specified order.",
+      "events": [
+        { "httpApi": { "method": "PATCH", "path": "/orders/{orderId}" } }
+      ]
+    },
+    "get-products": {
+      "handler": "src/products/getProducts.handler",
+      "description": "Gets all of the products.",
+      "events": [{ "httpApi": { "method": "GET", "path": "/products" } }]
+    },
+    "get-products-per-order": {
+      "handler": "src/products/getProductsPerOrder.handler",
+      "description": "Gets all of the products related to the specified order.",
+      "events": [
+        { "httpApi": { "method": "GET", "path": "/orders/{orderId}/products" } }
+      ]
+    },
+    "get-reviews-per-buyer": {
+      "handler": "src/reviews/getReviewsPerBuyer.handler",
+      "description": "Gets all of the reviews written by the specified buyer.",
+      "events": [
+        { "httpApi": { "method": "GET", "path": "/buyers/{buyerId}/reviews" } }
+      ]
+    },
+    "get-reviews-per-product": {
+      "handler": "src/reviews/getReviewsPerProduct.handler",
+      "description": "Gets all of the reviews related to the specified product.",
+      "events": [
+        {
+          "httpApi": {
+            "method": "GET",
+            "path": "/products/{productId}/reviews"
+          }
+        }
+      ]
+    }
+  },
+  "custom": {
+    "esbuild": { "bundle": true, "minify": true }
+  },
+  "plugins": ["serverless-esbuild", "serverless-offline"]
+}

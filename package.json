@@ -1,0 +1,25 @@
+{
+  "name": "ramzeis-store-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serverless offline",
+    "build": "serverless package",
+    "deploy-all-dev": "serverless --stage dev deploy",
+    "deploy-all-stag": "serverless --stage stag deploy",
+    "deploy-all-prod": "serverless --stage prod deploy",
+    "deploy-one": "serverless deploy function --function myFunction"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "esbuild": "^0.19.8",
+    "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.50.0",
+    "serverless-offline": "^13.3.1",
+    "typescript": "^5.3.3"
+  }
+}
