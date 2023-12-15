@@ -1,0 +1,585 @@
+service: 'ramzeis-store'
+useDotenv: true
+params:
+  dev:
+    dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-dev-main-table'
+    opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-dev-products'
+    cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_jpRgMxXDP'
+    cognito-user-pool-id: 'us-east-1_jpRgMxXDP'
+    s3-bucket-arn: 'arn:aws:s3:::ramzeis-store-dev'
+  stag:
+    dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-stag-main-table'
+    opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-stag-products'
+    cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_RukVDALmD'
+    cognito-user-pool-id: 'us-east-1_RukVDALmD'
+    s3-bucket-arn: 'arn:aws:s3:::ramzeis-store-stag'
+  prod:
+    dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-prod-main-table'
+    opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-prod-products'
+    cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_AADUiMaGY'
+    cognito-user-pool-id: 'us-east-1_AADUiMaGY'
+    s3-bucket-arn: 'arn:aws:s3:::ramzeis-store-prod'
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  runtime: 'nodejs20.x'
+  deploymentMethod: direct
+  region: 'us-east-1'
+  environment:
+    DYNAMO_DB_MAIN_TABLE_NAME: 'ramzeis-store-${sls:stage}-main-table'
+    OPEN_SEARCH_PRODUCTS_DOMAIN_NAME: 'ramzeis-store-${sls:stage}-products'
+    COGNITO_USER_POOL_ID: ${param:cognito-user-pool-id}
+    S3_BUCKET_NAME: 'ramzeis-store-${sls:stage}'
+  tags:
+    application-name: 'ramzeis-store'
+    environment: ${sls:stage}
+    function-type: endpoint
+  apiGateway:
+    shouldStartNameWithService: true
+    description: 'This is the Ramzeis Store REST API that allows the Ramzeis Store front-end to consume data an services.'
+frameworkVersion: 3.38.0
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+plugins:
+  - 'serverless-esbuild'
+  - 'serverless-offline'
+  - 'serverless-iam-roles-per-function'
+functions:
+  create-address:
+    handler: 'src/endpoints/addresses/createAddress/createAddress.handler'
+    description: 'Creates an address for the specified buyer.'
+    events:
+      - http:
+          method: POST
+          path: '/buyers/{buyerId}/addresses'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/addresses/createAddress/createAddress.request.schema.json)}
+            parameters:
+              paths:
+                buyerId: true
+          cors: true
+          operationId: 'create-address'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:PutItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: address
+  delete-address:
+    handler: 'src/endpoints/addresses/deleteAddress/deleteAddress.handler'
+    description: 'Deletes the specified address from the specified buyer addresses.'
+    events:
+      - http:
+          method: DELETE
+          path: '/buyers/{buyerId}/addresses/{addressId}'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+                addressId: true
+          cors: true
+          operationId: 'delete-address'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:DeleteItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: address
+  get-addresses-per-buyer:
+    handler: 'src/endpoints/addresses/getAddressesPerBuyer/getAddressesPerBuyer.handler'
+    description: 'Gets all of the addresses for the specified buyer.'
+    events:
+      - http:
+          method: GET
+          path: '/buyers/{buyerId}/addresses'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+          cors: true
+          operationId: 'get-addresses-per-buyer'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:Query'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: address
+  update-address:
+    handler: 'src/endpoints/addresses/updateAddress/updateAddress.handler'
+    description: 'Updates the specified address for the specified buyer.'
+    events:
+      - http:
+          method: PATCH
+          path: '/buyers/{buyerId}/addresses/{addressId}'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/addresses/updateAddress/updateAddress.request.schema.json)}
+            parameters:
+              paths:
+                buyerId: true
+                addressId: true
+          cors: true
+          operationId: 'update-address'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:UpdateItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: address
+  create-buyer:
+    handler: 'src/endpoints/buyers/createBuyer/createBuyer.handler'
+    description: 'Creates a buyer both on the Cognito User Pool and DynamoDB.'
+    events:
+      - http:
+          method: POST
+          path: '/buyers'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/buyers/createBuyer/createBuyer.request.schema.json)}
+          cors: true
+          operationId: 'create-buyer'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'cognito-idp:AdminCreateUser'
+        Resource: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_QD1T6QR3B'
+      - Effect: Allow
+        Action:
+          - 'dynamodb:PutItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: buyer
+  delete-buyer:
+    handler: 'src/endpoints/buyers/deleteBuyer/deleteBuyer.handler'
+    description: 'Deletes a buyer both from the Cognito User Pool and DynamoDB.'
+    events:
+      - http:
+          method: DELETE
+          path: '/buyers/{buyerId}'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+          cors: true
+          operationId: 'delete-buyer'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'cognito-idp:AdminDeleteUser'
+        Resource: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_QD1T6QR3B'
+      - Effect: Allow
+        Action:
+          - 'dynamodb:DeleteItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: buyer
+  get-cart:
+    handler: 'src/endpoints/carts/getCart/getCart.handler'
+    description: 'Gets the car of the specified buyer.'
+    events:
+      - http:
+          method: GET
+          path: '/buyers/{buyerId}/cart'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+          cors: true
+          operationId: 'get-cart'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: cart
+  update-cart:
+    handler: 'src/endpoints/carts/updateCart/updateCart.handler'
+    description: 'Updates the car of the specified buyer.'
+    events:
+      - http:
+          method: PATCH
+          path: '/buyers/{buyerId}/cart'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/carts/updateCart/updateCart.request.schema.json)}
+            parameters:
+              paths:
+                buyerId: true
+          cors: true
+          operationId: 'update-cart'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:UpdateItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: cart
+  get-colors:
+    handler: 'src/endpoints/colors/getColors/getColors.handler'
+    description: 'Gets all of the available colors for product filtering by color.'
+    events:
+      - http:
+          method: GET
+          path: '/colors'
+          cors: true
+          operationId: 'get-colors'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: color
+  create-order:
+    handler: 'src/endpoints/orders/createOrder/createOrder.handler'
+    description: 'Creates an order.'
+    events:
+      - http:
+          method: POST
+          path: '/orders'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/orders/createOrder/createOrder.request.schema.json)}
+          cors: true
+          operationId: 'create-order'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:PutItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: order
+  get-orders:
+    handler: 'src/endpoints/orders/getOrders/getOrders.handler'
+    description: 'Gets all of the orders.'
+    events:
+      - http:
+          method: GET
+          path: '/orders'
+          request:
+            parameters:
+              querystrings:
+                lowerCreationDate: false
+                upperCreationDate: false
+                lowerCompletionDate: false
+                upperCompletionDate: false
+                status: false
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-orders'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:Query'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: order
+  get-orders-per-buyer:
+    handler: 'src/endpoints/orders/getOrdersPerBuyer/getOrdersPerBuyer.handler'
+    description: 'Gets all of the orders related to the specified buyer.'
+    events:
+      - http:
+          method: GET
+          path: '/buyers/{buyerId}/orders'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+              querystrings:
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-orders-per-buyer'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:Query'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: order
+  update-order:
+    handler: 'src/endpoints/orders/updateOrder/updateOrder.handler'
+    description: 'Updates the specified order.'
+    events:
+      - http:
+          method: PATCH
+          path: '/orders/{orderId}'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/orders/updateOrder/updateOrder.request.schema.json)}
+            parameters:
+              paths:
+                orderId: true
+          cors: true
+          operationId: 'update-order'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:UpdateItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: order
+  create-product:
+    handler: 'src/endpoints/products/createProduct/createProduct.handler'
+    description: 'Creates a product.'
+    events:
+      - http:
+          method: POST
+          path: '/products'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/products/createProduct/createProduct.request.schema.json)}
+          cors: true
+          operationId: 'create-product'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpPost'
+        Resource: ${param:opensearch-products-domain-arn}
+      - Effect: Allow
+        Action:
+          - 's3:PutObject'
+        Resource: ${param:s3-bucket-arn}
+    tags:
+      triggered-entity: product
+  get-products:
+    handler: 'src/endpoints/products/getProducts/getProducts.handler'
+    description: 'Gets all of the products.'
+    events:
+      - http:
+          method: GET
+          path: '/products'
+          request:
+            parameters:
+              querystrings:
+                search: false
+                category: false
+                color: false
+                minPrice: false
+                maxPrice: false
+                isVisible: false
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-products'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: product
+  get-products-per-order:
+    handler: 'src/endpoints/products/getProductsPerOrder/getProductsPerOrder.handler'
+    description: 'Gets all of the products related to the specified order.'
+    events:
+      - http:
+          method: GET
+          path: '/orders/{orderId}/products'
+          request:
+            parameters:
+              paths:
+                orderId: true
+              querystrings:
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-products-per-order'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: product
+  get-single-product:
+    handler: 'src/endpoints/products/getSingleProduct/getSingleProduct.handler'
+    description: 'Gets the specified product.'
+    events:
+      - http:
+          method: GET
+          path: '/products/{productId}'
+          request:
+            parameters:
+              paths:
+                productId: true
+          cors: true
+          operationId: 'get-single-product'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpGet'
+        Resource: ${param:opensearch-products-domain-arn}
+    tags:
+      triggered-entity: product
+  update-product:
+    handler: 'src/endpoints/products/updateProduct/updateProduct.handler'
+    description: 'Updates the specified product.'
+    events:
+      - http:
+          method: PATCH
+          path: '/products/{productId}'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/products/updateProduct/updateProduct.request.schema.json)}
+            parameters:
+              paths:
+                productId: true
+          cors: true
+          operationId: 'update-product'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'es:ESHttpPatch'
+        Resource: ${param:opensearch-products-domain-arn}
+      - Effect: Allow
+        Action:
+          - 's3:PutObject'
+        Resource: ${param:s3-bucket-arn}
+    tags:
+      triggered-entity: product
+  create-review:
+    handler: 'src/endpoints/reviews/createReview/createReview.handler'
+    description: 'Creates a review for the specified product.'
+    events:
+      - http:
+          method: POST
+          path: '/products/{productId}/reviews'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/reviews/createReview/createReview.request.schema.json)}
+            parameters:
+              paths:
+                productId: true
+          cors: true
+          operationId: 'create-review'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:PutItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 's3:PutObject'
+        Resource: ${param:s3-bucket-arn}
+    tags:
+      triggered-entity: review
+  delete-review:
+    handler: 'src/endpoints/reviews/deleteReview/deleteReview.handler'
+    description: 'Deletes the specified review from the specified product reviews.'
+    events:
+      - http:
+          method: DELETE
+          path: '/products/{productId}/reviews/{reviewId}'
+          request:
+            parameters:
+              paths:
+                productId: true
+                reviewId: true
+          cors: true
+          operationId: 'delete-review'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:DeleteItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 's3:DeleteObject'
+        Resource: ${param:s3-bucket-arn}
+    tags:
+      triggered-entity: review
+  get-reviews-per-buyer:
+    handler: 'src/endpoints/reviews/getReviewsPerBuyer/getReviewsPerBuyer.handler'
+    description: 'Gets all of the reviews written by the specified buyer.'
+    events:
+      - http:
+          method: GET
+          path: '/buyers/{buyerId}/reviews'
+          request:
+            parameters:
+              paths:
+                buyerId: true
+              querystrings:
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-reviews-per-buyer'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:Query'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: review
+  get-reviews-per-product:
+    handler: 'src/endpoints/reviews/getReviewsPerProduct/getReviewsPerProduct.handler'
+    description: 'Gets all of the reviews related to the specified product.'
+    events:
+      - http:
+          method: GET
+          path: '/products/{productId}/reviews'
+          request:
+            parameters:
+              paths:
+                productId: true
+              querystrings:
+                limit: false
+                exclusiveStartKey: false
+          cors: true
+          operationId: 'get-reviews-per-product'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:Query'
+        Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: review
+  update-review:
+    handler: 'src/endpoints/reviews/updateReview/updateReview.handler'
+    description: 'Updates the specified review for the specified product.'
+    events:
+      - http:
+          method: PATCH
+          path: '/products/{productId}/reviews/{reviewId}'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/reviews/updateReview/updateReview.request.schema.json)}
+            parameters:
+              paths:
+                productId: true
+                reviewId: true
+          cors: true
+          operationId: 'update-review'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:UpdateItem'
+        Resource: ${param:dynamo-db-main-table-arn}
+      - Effect: Allow
+        Action:
+          - 's3:PutObject'
+        Resource: ${param:s3-bucket-arn}
+    tags:
+      triggered-entity: review

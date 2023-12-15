@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "orderCreationDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "orderCompletionDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "orderStatus": {
+      "type": "string",
+      "enum": ["pending", "delivered", "refunded"]
+    },
+    "orderNotes": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "orderProductsDetails": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "quantity": { "type": "number", "minimum": 1 },
+          "price": { "type": "number", "minimum": 10 }
+        },
+        "required": ["quantity", "price"],
+        "additionalProperties": false
+      }
+    },
+    "orderBuyerData": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phoneNumber": { "type": "string", "pattern": "^\\+" }
+      },
+      "required": ["name", "email", "phoneNumber"],
+      "additionalProperties": false
+    },
+    "orderAddressData": {
+      "type": "object",
+      "properties": {
+        "buyerCountry": { "type": "string" },
+        "buyerAdministrativeDivision": { "type": "string" },
+        "buyerCity": { "type": "string" },
+        "buyerZipCode": { "type": "string" },
+        "buyerRecipientName": { "type": "string" },
+        "buyerPhoneNumber": { "type": "string", "pattern": "^\\+" },
+        "buyerDeliveryInstructions": { "type": "string", "maxLength": 2000 }
+      },
+      "required": [
+        "buyerCountry",
+        "buyerAdministrativeDivision",
+        "buyerCity",
+        "buyerZipCode",
+        "buyerRecipientName",
+        "buyerPhoneNumber"
+      ],
+      "additionalProperties": false
+    },
+    "orderBuyerId": {
+      "type": "string",
+      "pattern": "^buyer\\|",
+      "minLength": 6
+    }
+  },
+  "required": [
+    "orderCreationDate",
+    "orderStatus",
+    "orderProductsDetails",
+    "orderBuyerData",
+    "orderAddressData",
+    "orderBuyerId"
+  ],
+  "additionalProperties": false
+}

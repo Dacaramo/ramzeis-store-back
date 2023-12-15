@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "minProperties": 1,
+  "properties": {
+    "orderCompletionDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "orderStatus": {
+      "type": "string",
+      "enum": ["pending", "delivered", "refunded"]
+    },
+    "orderNotes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

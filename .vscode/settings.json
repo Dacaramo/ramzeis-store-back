@@ -3,6 +3,10 @@
     "carts": "",
     "colors": "",
     "reviews": "",
-    "endpoints": "Routes"
+    "endpoints": "Routes",
+    "globalSchemas": "Global"
+  },
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/lalcebo/json-schema/master/serverless/reference.json": "file:///h%3A/CodeProjects/ramzeis-store-back/serverless.yaml"
   }
 }

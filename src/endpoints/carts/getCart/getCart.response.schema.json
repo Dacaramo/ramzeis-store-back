@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "pk": {
+      "type": "string",
+      "pattern": "^buyer\\|",
+      "minLength": 6
+    },
+    "sk": {
+      "type": "string",
+      "const": "cart"
+    },
+    "cartDetails": {
+      "type": "object",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "properties": {
+            "quantity": { "type": "number", "minimum": 1 },
+            "size": { "type": "string" }
+          },
+          "required": ["quantity"],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "required": ["pk", "sk", "cartDetails"],
+  "additionalProperties": false
+}

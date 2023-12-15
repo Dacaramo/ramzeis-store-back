@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pk": {
+            "type": "string",
+            "pattern": "^order\\|",
+            "minLength": 6
+          },
+          "sk": {
+            "type": "string",
+            "const": "N/A"
+          },
+          "orderCreationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderCompletionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "orderStatus": {
+            "type": "string",
+            "enum": ["pending", "delivered", "refunded"]
+          },
+          "orderNotes": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "orderProductsDetails": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "quantity": { "type": "number", "minimum": 1 },
+                "price": { "type": "number", "minimum": 10 }
+              },
+              "required": ["quantity", "price"],
+              "additionalProperties": false
+            }
+          },
+          "orderBuyerData": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "email": { "type": "string", "format": "email" },
+              "phoneNumber": { "type": "string", "pattern": "^\\+" }
+            },
+            "required": ["name", "email", "phoneNumber"],
+            "additionalProperties": false
+          },
+          "orderAddressData": {
+            "type": "object",
+            "properties": {
+              "buyerCountry": { "type": "string" },
+              "buyerAdministrativeDivision": { "type": "string" },
+              "buyerCity": { "type": "string" },
+              "buyerZipCode": { "type": "string" },
+              "buyerRecipientName": { "type": "string" },
+              "buyerPhoneNumber": { "type": "string", "pattern": "^\\+" },
+              "buyerDeliveryInstructions": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            },
+            "required": [
+              "buyerCountry",
+              "buyerAdministrativeDivision",
+              "buyerCity",
+              "buyerZipCode",
+              "buyerRecipientName",
+              "buyerPhoneNumber"
+            ],
+            "additionalProperties": false
+          },
+          "belongsTo": {
+            "type": "string",
+            "const": "order"
+          },
+          "orderBuyerId": {
+            "type": "string",
+            "pattern": "^buyer\\|",
+            "minLength": 6
+          }
+        },
+        "required": [
+          "orderCreationDate",
+          "orderStatus",
+          "orderProductsDetails",
+          "orderBuyerData",
+          "orderAddressData",
+          "belongsTo",
+          "orderBuyerId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "lastEvaluatedKey": {
+      "type": "object",
+      "minProperties": 2,
+      "additionalProperties": true
+    },
+    "count": { "type": "integer" },
+    "scannedCount": { "type": "integer" }
+  },
+  "required": ["items", "count", "scannedCount"]
+}

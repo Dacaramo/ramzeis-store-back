@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "pk": {
+      "type": "string",
+      "const": "colors"
+    },
+    "sk": {
+      "type": "string",
+      "const": "N/A"
+    },
+    "hexColors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{6}$"
+      }
+    }
+  },
+  "required": ["pk", "sk", "hexColors"],
+  "additionalProperties": false
+}
