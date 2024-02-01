@@ -91,7 +91,7 @@
       "type": "integer",
       "minimum": -1
     },
-    "supportedLocales": {
+    "supportedLocaleIds": {
       "type": "array",
       "minItems": 1,
       "items": {

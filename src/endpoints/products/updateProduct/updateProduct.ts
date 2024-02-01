@@ -10,13 +10,14 @@ import {
   productIdSchema,
   productPatchSchema,
 } from '../../../model/Product';
-import { bucketNameSchema, indexNameSchema } from '../../../model/otherSchemas';
+import { indexNameSchema, tableNameSchema } from '../../../model/otherSchemas';
 import { updateProductOnOpenSearchIndex } from './helpers';
 import {
   validateProductCategoryIdAndSubcategoryId,
   validateProductColorId,
 } from '../helpers';
 import { ClientError } from '../../../model/Error';
+import { validateSupportedLocaleIds } from '../createProduct/helpers';
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent
@@ -24,12 +25,12 @@ export const handler: APIGatewayProxyHandler = async (
   try {
     const productId = event.pathParameters?.productId;
     const indexName = process.env.OPENSEARCH_PRODUCTS_INDEX_NAME;
-    const bucketName = process.env.S3_BUCKET_NAME;
+    const tableName = process.env.DYNAMODB_SECONDARY_TABLE_NAME;
     const patch = JSON.parse(event.body!) as ProductPatch;
 
     const parsedProductId = parse(productIdSchema, productId);
     const parsedIndexName = parse(indexNameSchema, indexName);
-    const parsedBucketName = parse(bucketNameSchema, bucketName);
+    const parsedTableName = parse(tableNameSchema, tableName);
     /* Additional validation, since it is already validated by API Gateway */
     const parsedPatch = parse(productPatchSchema, patch);
 
@@ -43,17 +44,25 @@ export const handler: APIGatewayProxyHandler = async (
     }
 
     if (parsedPatch.categoryId && parsedPatch.subcategoryId) {
-      /* The categoryId and subcategoryId need to be validated against the available ids on the productCategories.json object on the S3 bucket */
+      /* The categoryId and subcategoryId need to be validated against the available ids on dynamoDB */
       await validateProductCategoryIdAndSubcategoryId(
-        parsedBucketName,
+        parsedTableName,
         parsedPatch.categoryId,
         parsedPatch.subcategoryId
       );
     }
 
     if (parsedPatch.colorId) {
-      /* The colorId needs to be validated against the available ids on the productColors.json object on the S3 bucket */
-      await validateProductColorId(parsedBucketName, parsedPatch.colorId);
+      /* The colorId needs to be validated against the available ids on dynamoDB */
+      await validateProductColorId(parsedTableName, parsedPatch.colorId);
+    }
+
+    if (parsedPatch.supportedLocaleIds) {
+      /* Every id inside supportedLocaleIds needs to be validated against the available ids on dynamoDB */
+      await validateSupportedLocaleIds(
+        parsedTableName,
+        parsedPatch.supportedLocaleIds
+      );
     }
 
     await updateProductOnOpenSearchIndex(
