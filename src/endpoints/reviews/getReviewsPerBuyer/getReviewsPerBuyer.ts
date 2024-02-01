@@ -21,13 +21,13 @@ export const handler: APIGatewayProxyHandler = async (
     const buyerEmail = event.pathParameters?.buyerEmail;
     const tableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
     const qsp = event.queryStringParameters ?? {};
-
-    const parsedBuyerEmail = parse(buyerEmailSchema, buyerEmail);
-    const parsedTableName = parse(tableNameSchema, tableName);
     const reviewFilterValues: ReviewFilterValues = {
       limit: qsp.limit ? parseInt(qsp.limit) : defaultLimit,
       encodedExclusiveStartKey: qsp.encodedExclusiveStartKey,
     };
+
+    const parsedBuyerEmail = parse(buyerEmailSchema, buyerEmail);
+    const parsedTableName = parse(tableNameSchema, tableName);
     const parsedReviewFilterValues = parse(
       reviewFilterValuesSchema,
       reviewFilterValues
