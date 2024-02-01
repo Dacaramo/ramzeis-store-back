@@ -10,9 +10,9 @@
       "type": "string",
       "format": "date-time"
     },
-    "orderStatus": {
+    "orderStatusId": {
       "type": "string",
-      "enum": ["pending", "delivered", "refunded"]
+      "minLength": 1
     },
     "orderNotes": {
       "type": "string",
@@ -61,10 +61,12 @@
       ],
       "additionalProperties": false
     },
-    "orderBuyerId": {
+    "orderBuyerEmail": {
       "type": "string",
-      "pattern": "^buyer\\|",
-      "minLength": 6
+      "format": "email"
+    },
+    "orderStripePaymentMethodId": {
+      "type": "string"
     }
   },
   "required": [
@@ -73,7 +75,8 @@
     "orderProductsDetails",
     "orderBuyerData",
     "orderAddressData",
-    "orderBuyerId"
+    "orderBuyerEmail",
+    "orderStripePaymentMethodId"
   ],
   "additionalProperties": false
 }

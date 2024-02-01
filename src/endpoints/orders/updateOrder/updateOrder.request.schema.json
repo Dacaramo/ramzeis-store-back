@@ -7,9 +7,9 @@
       "type": "string",
       "format": "date-time"
     },
-    "orderStatus": {
+    "orderStatusId": {
       "type": "string",
-      "enum": ["pending", "delivered", "refunded"]
+      "minLength": 1
     },
     "orderNotes": {
       "type": "string"
