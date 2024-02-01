@@ -27,10 +27,9 @@
       "minItems": 1,
       "maxItems": 5
     },
-    "reviewBuyerId": {
+    "reviewBuyerEmail": {
       "type": "string",
-      "pattern": "^buyer\\|",
-      "minLength": 6
+      "format": "email"
     }
   },
   "required": [
@@ -38,6 +37,6 @@
     "reviewDescription",
     "reviewScore",
     "reviewDate",
-    "reviewBuyerId"
+    "reviewBuyerEmail"
   ]
 }
