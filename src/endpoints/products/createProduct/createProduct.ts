@@ -7,8 +7,11 @@ import { inferRequestResponseFromError } from '../../../utils/inferRequestRespon
 import { Product, productSchema } from '../../../model/Product';
 import * as crypto from 'crypto';
 import { parse } from 'valibot';
-import { bucketNameSchema, indexNameSchema } from '../../../model/otherSchemas';
-import { createProductOnOpenSearchIndex } from './helpers';
+import { indexNameSchema, tableNameSchema } from '../../../model/otherSchemas';
+import {
+  createProductOnOpenSearchIndex,
+  validateSupportedLocaleIds,
+} from './helpers';
 import {
   validateProductCategoryIdAndSubcategoryId,
   validateProductColorId,
@@ -19,7 +22,7 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const indexName = process.env.OPENSEARCH_PRODUCTS_INDEX_NAME;
-    const bucketName = process.env.S3_BUCKET_NAME;
+    const tableName = process.env.DYNAMODB_SECONDARY_TABLE_NAME;
     const requestBody = JSON.parse(event.body!) as Omit<Product, 'pk'>;
     const document: Product = {
       pk: `product|${crypto.randomUUID()}`,
@@ -27,20 +30,25 @@ export const handler: APIGatewayProxyHandler = async (
     };
 
     const parsedIndexName = parse(indexNameSchema, indexName);
-    const parsedBucketName = parse(bucketNameSchema, bucketName);
-
+    const parsedTableName = parse(tableNameSchema, tableName);
     /* Additional validation, since it is already validated by API Gateway */
     const parsedDocument = parse(productSchema, document) as Product;
 
-    /* The categoryId and subcategoryId need to be validated against the available ids on the productCategories.json object on the S3 bucket */
+    /* The categoryId and subcategoryId needs to be validated against the available ids on dynamoDB */
     await validateProductCategoryIdAndSubcategoryId(
-      parsedBucketName,
-      document.categoryId,
-      document.subcategoryId
+      parsedTableName,
+      parsedDocument.categoryId,
+      parsedDocument.subcategoryId
     );
 
-    /* The colorId needs to be validated against the available ids on the productColors.json object on the S3 bucket */
-    await validateProductColorId(parsedBucketName, document.colorId);
+    /* The colorId needs to be validated against the available ids on dynamoDB */
+    await validateProductColorId(parsedTableName, parsedDocument.colorId);
+
+    /* All of the ids inside supportedLocaleIds needs to be validated against the ids on dynamoDB */
+    await validateSupportedLocaleIds(
+      parsedTableName,
+      parsedDocument.supportedLocaleIds
+    );
 
     await createProductOnOpenSearchIndex(parsedIndexName, parsedDocument);
     return {
