@@ -2,7 +2,6 @@ import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import ddbDocClient from '../../../clients/ddbDocClient';
 import { Address, AddressFilterValues } from '../../../model/Address';
 import { ListResponse } from '../../../model/ListResponse';
-import { ExclusiveStartKey } from '../../../model/otherSchemas';
 import { ThirdPartyServerError } from '../../../model/Error';
 import { decodeEsk } from '../../../utils/decodeEsk';
 

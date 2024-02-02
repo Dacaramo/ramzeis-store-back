@@ -1,7 +1,6 @@
 import { ListResponse } from '../../../model/ListResponse';
 import { Product, ProductFilterValues } from '../../../model/Product';
 import { openSearchClient } from '../../../clients/openSearchClient';
-import { ExclusiveStartKey } from '../../../model/otherSchemas';
 import { SearchResponse } from '@opensearch-project/opensearch/api/types';
 import { googleTranslateClient } from '../../../clients/googleTranslateClient';
 import { decodeEsk } from '../../../utils/decodeEsk';
@@ -84,7 +83,7 @@ export const getProductsFromOpenSearchIndex = async (
     const searchResponse = apiResponse.body as SearchResponse<Product>;
     const hits = searchResponse.hits.hits;
     const items = hits.map((hit) => hit._source) as Array<Product>;
-    let lastEvaluatedKey: ExclusiveStartKey | undefined = undefined;
+    let lastEvaluatedKey: Record<string, unknown> | undefined = undefined;
     const count = hits.length;
     const scannedCount = hits.length;
 

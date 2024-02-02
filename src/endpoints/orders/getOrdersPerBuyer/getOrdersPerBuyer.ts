@@ -5,12 +5,7 @@ import {
 } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { parse } from 'valibot';
-import {
-  ExclusiveStartKey,
-  exclusiveStartKeySchema,
-  limitSchema,
-  tableNameSchema,
-} from '../../../model/otherSchemas';
+import { tableNameSchema } from '../../../model/otherSchemas';
 import { buyerEmailSchema } from '../../../model/Buyer';
 import { getOrdersPerBuyerFromDdbTable } from './helpers';
 import {

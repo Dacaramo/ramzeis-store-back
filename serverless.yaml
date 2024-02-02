@@ -1,20 +1,25 @@
+org: 'ramzeis'
+app: 'ramzeis-store'
 service: 'ramzeis-store'
 useDotenv: true
 params:
   dev:
     dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-dev-main-table'
+    dynamo-db-secondary-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-dev-secondary-table'
     opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-dev-products'
     cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_jpRgMxXDP'
     cognito-user-pool-id: 'us-east-1_jpRgMxXDP'
     s3-bucket-arn: 'arn:aws:s3:::ramzeis-store-dev'
   stag:
     dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-stag-main-table'
+    dynamo-db-secondary-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-stag-secondary-table'
     opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-stag-products'
     cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_RukVDALmD'
     cognito-user-pool-id: 'us-east-1_RukVDALmD'
     s3-bucket-arn: 'arn:aws:s3:::ramzeis-store-stag'
   prod:
     dynamo-db-main-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-prod-main-table'
+    dynamo-db-secondary-table-arn: 'arn:aws:dynamodb:us-east-1:142399826006:table/ramzeis-store-prod-secondary-table'
     opensearch-products-domain-arn: 'arn:aws:es:us-east-1:142399826006:domain/ramzeis-store-prod-products'
     cognito-user-pool-arn: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_AADUiMaGY'
     cognito-user-pool-id: 'us-east-1_AADUiMaGY'
@@ -26,17 +31,21 @@ provider:
   deploymentMethod: direct
   region: 'us-east-1'
   environment:
-    DYNAMO_DB_MAIN_TABLE_NAME: 'ramzeis-store-${sls:stage}-main-table'
-    OPEN_SEARCH_PRODUCTS_DOMAIN_NAME: 'ramzeis-store-${sls:stage}-products'
     COGNITO_USER_POOL_ID: ${param:cognito-user-pool-id}
     S3_BUCKET_NAME: 'ramzeis-store-${sls:stage}'
+    DYNAMODB_MAIN_TABLE_NAME: 'ramzeis-store-${sls:stage}-main-table'
+    DYNAMODB_SECONDARY_TABLE_NAME: 'ramzeis-store-${sls:stage}-secondary-table'
+    OPENSEARCH_PRODUCTS_DOMAIN_URL: 'MISSING'
+    OPENSEARCH_PRODUCTS_INDEX_NAME: 'ramzeis-store-${sls:stage}-products-index'
+    GOOGLE_CLOUD_TRANSLATION_API_KEY: ${param:google-cloud-translation-api-key}
+    STRIPE_API_KEY: ${param:stripe-api-key}
   tags:
     application-name: 'ramzeis-store'
     environment: ${sls:stage}
     function-type: endpoint
   apiGateway:
     shouldStartNameWithService: true
-    description: 'This is the Ramzeis Store REST API that allows the Ramzeis Store front-end to consume data an services.'
+    description: 'This is the Ramzeis Store REST API that allows the Ramzeis Store front-end to consume data and services.'
 frameworkVersion: 3.38.0
 custom:
   esbuild:
@@ -53,19 +62,20 @@ functions:
     events:
       - http:
           method: POST
-          path: '/buyers/{buyerId}/addresses'
+          path: '/buyers/{buyerEmail}/addresses'
           request:
             schemas:
               application/json: ${file(src/endpoints/addresses/createAddress/createAddress.request.schema.json)}
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
           cors: true
           operationId: 'create-address'
     iamRoleStatements:
       - Effect: Allow
         Action:
           - 'dynamodb:PutItem'
+          - 'dynamodb:QueryItem'
         Resource: ${param:dynamo-db-main-table-arn}
     tags:
       triggered-entity: address
@@ -75,11 +85,11 @@ functions:
     events:
       - http:
           method: DELETE
-          path: '/buyers/{buyerId}/addresses/{addressId}'
+          path: '/buyers/{buyerEmail}/addresses/{addressId}'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
                 addressId: true
           cors: true
           operationId: 'delete-address'
@@ -96,11 +106,14 @@ functions:
     events:
       - http:
           method: GET
-          path: '/buyers/{buyerId}/addresses'
+          path: '/buyers/{buyerEmail}/addresses'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
+              querystrings:
+                limit: false
+                encodedExclusiveStartKey: false
           cors: true
           operationId: 'get-addresses-per-buyer'
     iamRoleStatements:
@@ -116,13 +129,13 @@ functions:
     events:
       - http:
           method: PATCH
-          path: '/buyers/{buyerId}/addresses/{addressId}'
+          path: '/buyers/{buyerEmail}/addresses/{addressId}'
           request:
             schemas:
               application/json: ${file(src/endpoints/addresses/updateAddress/updateAddress.request.schema.json)}
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
                 addressId: true
           cors: true
           operationId: 'update-address'
@@ -149,7 +162,7 @@ functions:
       - Effect: Allow
         Action:
           - 'cognito-idp:AdminCreateUser'
-        Resource: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_QD1T6QR3B'
+        Resource: '${param:cognito-user-pool-arn}'
       - Effect: Allow
         Action:
           - 'dynamodb:PutItem'
@@ -158,42 +171,48 @@ functions:
       triggered-entity: buyer
   delete-buyer:
     handler: 'src/endpoints/buyers/deleteBuyer/deleteBuyer.handler'
-    description: 'Deletes a buyer both from the Cognito User Pool and DynamoDB.'
+    description: 'Deletes a buyer from the Cognito User Pool, DynamoDB and Stripe.'
     events:
       - http:
           method: DELETE
-          path: '/buyers/{buyerId}'
+          path: '/buyers/{buyerEmail}'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
           cors: true
           operationId: 'delete-buyer'
     iamRoleStatements:
       - Effect: Allow
         Action:
           - 'cognito-idp:AdminDeleteUser'
-        Resource: 'arn:aws:cognito-idp:us-east-1:142399826006:userpool/us-east-1_QD1T6QR3B'
+        Resource: '${param:cognito-user-pool-arn}'
       - Effect: Allow
         Action:
           - 'dynamodb:DeleteItem'
+          - 'dynamodb:QueryItem'
+          - 'dynamodb:BatchWriteItem'
         Resource: ${param:dynamo-db-main-table-arn}
     tags:
       triggered-entity: buyer
-  get-cart:
-    handler: 'src/endpoints/carts/getCart/getCart.handler'
-    description: 'Gets the car of the specified buyer.'
+  get-buyer:
+    handler: 'src/endpoints/buyers/getBuyer/getBuyer.handler'
+    description: 'Gets the data of the specified buyer from DynamoDB (Not from Cognito).'
     events:
       - http:
           method: GET
-          path: '/buyers/{buyerId}/cart'
+          path: '/buyers/{buyerEmail}'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
           cors: true
-          operationId: 'get-cart'
+          operationId: 'get-buyer'
     iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'cognito-idp:AdminGetUser'
+        Resource: '${param:cognito-user-pool-arn}'
       - Effect: Allow
         Action:
           - 'dynamodb:GetItem'
@@ -203,48 +222,32 @@ functions:
           - 'es:ESHttpGet'
         Resource: ${param:opensearch-products-domain-arn}
     tags:
-      triggered-entity: cart
-  update-cart:
-    handler: 'src/endpoints/carts/updateCart/updateCart.handler'
-    description: 'Updates the car of the specified buyer.'
+      triggered-entity: buyer
+  update-buyer:
+    handler: 'src/endpoints/buyers/updateBuyer/updateBuyer.handler'
+    description: 'Updates the specified buyer on DynamoDB.'
     events:
       - http:
           method: PATCH
-          path: '/buyers/{buyerId}/cart'
+          path: '/buyers/{buyerEmail}'
           request:
             schemas:
-              application/json: ${file(src/endpoints/carts/updateCart/updateCart.request.schema.json)}
+              application/json: ${file(src/endpoints/buyers/updateBuyer/updateBuyer.request.schema.json)}
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
           cors: true
-          operationId: 'update-cart'
+          operationId: 'update-buyer'
     iamRoleStatements:
       - Effect: Allow
         Action:
           - 'dynamodb:UpdateItem'
         Resource: ${param:dynamo-db-main-table-arn}
     tags:
-      triggered-entity: cart
-  get-colors:
-    handler: 'src/endpoints/colors/getColors/getColors.handler'
-    description: 'Gets all of the available colors for product filtering by color.'
-    events:
-      - http:
-          method: GET
-          path: '/colors'
-          cors: true
-          operationId: 'get-colors'
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - 'dynamodb:GetItem'
-        Resource: ${param:dynamo-db-main-table-arn}
-    tags:
-      triggered-entity: color
+      triggered-entity: buyer
   create-order:
     handler: 'src/endpoints/orders/createOrder/createOrder.handler'
-    description: 'Creates an order.'
+    description: 'Creates an order on DynamoDB and creates a Stripe Payment Intent that is confirmed by default'
     events:
       - http:
           method: POST
@@ -275,9 +278,9 @@ functions:
                 upperCreationDate: false
                 lowerCompletionDate: false
                 upperCompletionDate: false
-                status: false
+                statusId: false
                 limit: false
-                exclusiveStartKey: false
+                encodedExclusiveStartKey: false
           cors: true
           operationId: 'get-orders'
     iamRoleStatements:
@@ -285,10 +288,6 @@ functions:
         Action:
           - 'dynamodb:Query'
         Resource: ${param:dynamo-db-main-table-arn}
-      - Effect: Allow
-        Action:
-          - 'es:ESHttpGet'
-        Resource: ${param:opensearch-products-domain-arn}
     tags:
       triggered-entity: order
   get-orders-per-buyer:
@@ -297,14 +296,14 @@ functions:
     events:
       - http:
           method: GET
-          path: '/buyers/{buyerId}/orders'
+          path: '/buyers/{buyerEmail}/orders'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
               querystrings:
                 limit: false
-                exclusiveStartKey: false
+                encodedExclusiveStartKey: false
           cors: true
           operationId: 'get-orders-per-buyer'
     iamRoleStatements:
@@ -312,10 +311,26 @@ functions:
         Action:
           - 'dynamodb:Query'
         Resource: ${param:dynamo-db-main-table-arn}
+    tags:
+      triggered-entity: order
+  get-order-statuses:
+    handler: 'src/endpoints/orders/getOrderStatuses/getOrderStatuses.handler'
+    description: 'Gets all of the available and valid order statuses.'
+    events:
+      - http:
+          method: GET
+          path: '/{localeId}/order-statuses'
+          request:
+            parameters:
+              paths:
+                localeId: true
+          cors: true
+          operationId: 'get-order-statuses'
+    iamRoleStatements:
       - Effect: Allow
         Action:
-          - 'es:ESHttpGet'
-        Resource: ${param:opensearch-products-domain-arn}
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-secondary-table-arn}
     tags:
       triggered-entity: order
   update-order:
@@ -340,6 +355,73 @@ functions:
         Resource: ${param:dynamo-db-main-table-arn}
     tags:
       triggered-entity: order
+  create-setup-intent:
+    handler: 'src/endpoints/payment-methods/createSetupIntent/createSetupIntent.handler'
+    description: 'Creates a SetupIntent on Stripe in order to attach the specified payment method to the specified buyer.'
+    events:
+      - http:
+          method: POST
+          path: '/stripe-customers/{buyerStripeCustomerId}/payment-methods'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/payment-methods/createSetupIntent/createSetupIntent.request.schema.json)}
+            parameters:
+              paths:
+                buyerStripeCustomerId: true
+          cors: true
+          operationId: 'create-setup-intent'
+    tags:
+      triggered-entity: payment-method
+  detach-payment-method:
+    handler: 'src/endpoints/payment-methods/detachPaymentMethod/detachPaymentMethod.handler'
+    description: 'Detaches the specified payment method from the specified buyer. This is equivalent to deleting the payment method.'
+    events:
+      - http:
+          method: DELETE
+          path: '/payment-methods/{stripePaymentMethodId}'
+          request:
+            parameters:
+              paths:
+                stripePaymentMethodId: true
+          cors: true
+          operationId: 'detach-payment-method'
+    tags:
+      triggered-entity: payment-method
+  get-payment-methods-per-buyer:
+    handler: 'src/endpoints/payment-methods/getPaymentMethodsPerBuyer/getPaymentMethodsPerBuyer.handler'
+    description: 'Gets all of the payment methods related to the specified buyer.'
+    events:
+      - http:
+          method: GET
+          path: '/stripe-customers/{buyerStripeCustomerId}/payment-methods'
+          request:
+            parameters:
+              paths:
+                buyerStripeCustomerId: true
+              querystrings:
+                limit: false
+                encodedExclusiveStartKey: false
+          cors: true
+          operationId: 'get-payment-methods-per-buyer'
+    tags:
+      triggered-entity: payment-method
+  update-payment-method:
+    handler: 'src/endpoints/payment-methods/updatePaymentMethod/updatePaymentMethod.handler'
+    description: 'Updates the specified payment method.'
+    events:
+      - http:
+          method: PATCH
+          path: '/payment-methods/{stripePaymentMethodId}'
+          request:
+            schemas:
+              application/json: ${file(src/endpoints/payment-methods/updatePaymentMethod/updatePaymentMethod.request.schema.json)}
+            parameters:
+              paths:
+                stripePaymentMethodId: true
+          cors: true
+          operationId: 'update-payment-method'
+    tags:
+      triggered-entity: payment-method
   create-product:
     handler: 'src/endpoints/products/createProduct/createProduct.handler'
     description: 'Creates a product.'
@@ -363,49 +445,71 @@ functions:
         Resource: ${param:s3-bucket-arn}
     tags:
       triggered-entity: product
+  get-product-categories:
+    handler: 'src/endpoints/products/getProductCategories/getProductCategories.handler'
+    description: 'Gets all of the available and valid product categories.'
+    events:
+      - http:
+          method: GET
+          path: '/{localeId}/product-categories'
+          request:
+            parameters:
+              paths:
+                localeId: true
+          cors: true
+          operationId: 'get-product-categories'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-secondary-table-arn}
+    tags:
+      triggered-entity: product
+  get-product-colors:
+    handler: 'src/endpoints/products/getProductColors/getProductColors.handler'
+    description: 'Gets all of the available and valid product colors.'
+    events:
+      - http:
+          method: GET
+          path: '/{localeId}/product-colors'
+          request:
+            parameters:
+              paths:
+                localeId: true
+          cors: true
+          operationId: 'get-product-colors'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-secondary-table-arn}
+    tags:
+      triggered-entity: product
   get-products:
     handler: 'src/endpoints/products/getProducts/getProducts.handler'
     description: 'Gets all of the products.'
     events:
       - http:
           method: GET
-          path: '/products'
-          request:
-            parameters:
-              querystrings:
-                search: false
-                category: false
-                color: false
-                minPrice: false
-                maxPrice: false
-                isVisible: false
-                limit: false
-                exclusiveStartKey: false
-          cors: true
-          operationId: 'get-products'
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - 'es:ESHttpGet'
-        Resource: ${param:opensearch-products-domain-arn}
-    tags:
-      triggered-entity: product
-  get-products-per-order:
-    handler: 'src/endpoints/products/getProductsPerOrder/getProductsPerOrder.handler'
-    description: 'Gets all of the products related to the specified order.'
-    events:
-      - http:
-          method: GET
-          path: '/orders/{orderId}/products'
+          path: '/{localeId}/products'
           request:
             parameters:
               paths:
-                orderId: true
+                localeId: true
               querystrings:
+                search: false
+                categoryId: false
+                subcategoryId: false
+                colorId: false
+                minPrice: false
+                maxPrice: false
+                isVisible: false
+                isForDropshipping: false
                 limit: false
-                exclusiveStartKey: false
+                sort: false
+                encodedExclusiveStartKey: false
           cors: true
-          operationId: 'get-products-per-order'
+          operationId: 'get-products'
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -419,10 +523,11 @@ functions:
     events:
       - http:
           method: GET
-          path: '/products/{productId}'
+          path: '/{localeId}/products/{productId}'
           request:
             parameters:
               paths:
+                localeId: true
                 productId: true
           cors: true
           operationId: 'get-single-product'
@@ -456,6 +561,7 @@ functions:
       - Effect: Allow
         Action:
           - 's3:PutObject'
+          - 's3:DeleteObject'
         Resource: ${param:s3-bucket-arn}
     tags:
       triggered-entity: product
@@ -516,14 +622,14 @@ functions:
     events:
       - http:
           method: GET
-          path: '/buyers/{buyerId}/reviews'
+          path: '/buyers/{buyerEmail}/reviews'
           request:
             parameters:
               paths:
-                buyerId: true
+                buyerEmail: true
               querystrings:
                 limit: false
-                exclusiveStartKey: false
+                encodedExclusiveStartKey: false
           cors: true
           operationId: 'get-reviews-per-buyer'
     iamRoleStatements:
@@ -546,7 +652,7 @@ functions:
                 productId: true
               querystrings:
                 limit: false
-                exclusiveStartKey: false
+                encodedExclusiveStartKey: false
           cors: true
           operationId: 'get-reviews-per-product'
     iamRoleStatements:
@@ -580,6 +686,25 @@ functions:
       - Effect: Allow
         Action:
           - 's3:PutObject'
+          - 's3:DeleteObject'
         Resource: ${param:s3-bucket-arn}
     tags:
       triggered-entity: review
+  get-supported-locales:
+    handler: 'src/endpoints/getSupportedLocales.handler'
+    description: 'Gets all of the available and valid locales.'
+    events:
+      - http:
+          method: GET
+          path: '/{localeId}/supported-locales'
+          request:
+            parameters:
+              paths:
+                localeId: true
+          cors: true
+          operationId: 'get-supported-locales'
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'dynamodb:GetItem'
+        Resource: ${param:dynamo-db-secondary-table-arn}

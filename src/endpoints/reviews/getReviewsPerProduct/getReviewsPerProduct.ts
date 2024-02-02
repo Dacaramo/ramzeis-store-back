@@ -3,12 +3,7 @@ import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
 } from 'aws-lambda';
-import {
-  ExclusiveStartKey,
-  exclusiveStartKeySchema,
-  limitSchema,
-  tableNameSchema,
-} from '../../../model/otherSchemas';
+import { tableNameSchema } from '../../../model/otherSchemas';
 import { parse } from 'valibot';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { productIdSchema } from '../../../model/Product';
