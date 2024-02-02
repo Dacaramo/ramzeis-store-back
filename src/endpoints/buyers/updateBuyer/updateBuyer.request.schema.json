@@ -1,19 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
+  "minProperties": 1,
   "properties": {
-    "buyerEmail": {
-      "type": "string",
-      "format": "email"
-    },
-    "buyerName": {
-      "type": "string"
-    },
-    "buyerPhoneNumber": {
-      "type": "string",
-      "pattern": "^\\+"
-    },
-    "buyerCartDetails": {
+    "cartDetails": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
@@ -31,6 +21,6 @@
       }
     }
   },
-  "required": ["buyerEmail"],
+  "required": ["cartDetails"],
   "additionalProperties": false
 }
