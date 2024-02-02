@@ -17,7 +17,15 @@ export const getProductCategoriesFromDdbTable = async (
       },
     });
     const output = await ddbDocClient.send(command);
-    return (output.Item as Array<ProductCategory>) ?? [];
+    return (
+      (
+        output.Item as {
+          pk: string;
+          sk: 'doc|productCategories';
+          docContent: Array<ProductCategory>;
+        }
+      )?.docContent ?? []
+    );
   } catch (error) {
     throw error;
   }
@@ -75,7 +83,15 @@ export const getProductColorsFromDdbTable = async (
       },
     });
     const output = await ddbDocClient.send(command);
-    return (output.Item as Array<ProductColor>) ?? [];
+    return (
+      (
+        output.Item as {
+          pk: string;
+          sk: 'doc|productColors';
+          docContent: Array<ProductColor>;
+        }
+      )?.docContent ?? []
+    );
   } catch (error) {
     throw error;
   }

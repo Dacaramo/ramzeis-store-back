@@ -16,7 +16,15 @@ export const getOrderStatusesFromDdbTable = async (
       },
     });
     const output = await ddbDocClient.send(command);
-    return (output.Item as Array<OrderStatus>) ?? [];
+    return (
+      (
+        output.Item as {
+          pk: string;
+          sk: 'doc|orderStatuses';
+          docContent: Array<OrderStatus>;
+        }
+      )?.docContent ?? []
+    );
   } catch (error) {
     throw error;
   }
