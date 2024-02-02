@@ -23,10 +23,24 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "quantity": { "type": "number", "minimum": 1 },
-          "price": { "type": "number", "minimum": 10 }
+          "previewImage": {
+            "type": "string",
+            "format": "uri"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1
+          },
+          "price": {
+            "type": "number",
+            "minimum": 1000,
+            "maximum": 50000
+          },
+          "size": {
+            "type": "string"
+          }
         },
-        "required": ["quantity", "price"],
+        "required": ["previewImage", "quantity", "price"],
         "additionalProperties": false
       }
     },
