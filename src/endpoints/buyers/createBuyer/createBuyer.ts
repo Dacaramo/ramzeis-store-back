@@ -17,6 +17,7 @@ export const handler: APIGatewayProxyHandler = async (
     const requestBody = JSON.parse(event.body!) as {
       buyerEmail: Buyer['pk'];
       buyerCartDetails?: Buyer['buyerCartDetails'];
+      buyerAgreements: Buyer['buyerAgreements'];
     };
     const buyerEmail = requestBody.buyerEmail;
 
@@ -30,6 +31,7 @@ export const handler: APIGatewayProxyHandler = async (
       sk: 'N/A',
       buyerCartDetails: requestBody.buyerCartDetails ?? {},
       buyerStripeCustomerId: stripeCustomer.id,
+      buyerAgreements: requestBody.buyerAgreements,
     };
     /* Additional validation, since it is already validated by API Gateway */
     const parsedBuyer = parse(buyerSchema, buyer);

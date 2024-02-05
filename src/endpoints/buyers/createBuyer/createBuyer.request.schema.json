@@ -29,8 +29,34 @@
         "required": ["quantity"],
         "additionalProperties": false
       }
+    },
+    "buyerAgreements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "documentName": {
+            "type": "string"
+          },
+          "documentVersion": {
+            "type": "string"
+          },
+          "acceptanceTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acceptanceIP": {
+            "type": "string",
+            "format": "ipv4"
+          },
+          "acceptanceDeviceDetails": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
-  "required": ["buyerEmail"],
+  "required": ["buyerEmail", "buyerAgreements"],
   "additionalProperties": false
 }
