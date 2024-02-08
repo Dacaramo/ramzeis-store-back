@@ -31,17 +31,15 @@ export const buyerSchema = object(
     sk: string('The sk must be a string', [
       value('N/A', 'The value of sk must always be N/A'),
     ]),
-    buyerCartDetails: optional(
-      record(
-        string(),
-        object({
-          quantity: number('The quantity must be a number', [
-            integer('The quantity must be an integer'),
-            minValue(1, 'The quantity must be greater than 0'),
-          ]),
-          size: optional(string('The size must be a string')),
-        })
-      )
+    buyerCartDetails: record(
+      string(),
+      object({
+        quantity: number('The quantity must be a number', [
+          integer('The quantity must be an integer'),
+          minValue(1, 'The quantity must be greater than 0'),
+        ]),
+        size: optional(string('The size must be a string')),
+      })
     ),
     buyerStripeCustomerId: buyerStripeCustomerIdSchema,
     buyerAgreements: array(

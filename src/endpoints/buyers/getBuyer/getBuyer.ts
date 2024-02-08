@@ -26,13 +26,11 @@ export const handler: APIGatewayProxyHandler = async (
     const parsedIndexName = parse(indexNameSchema, indexName);
 
     const buyer = await getBuyerFromDdbTable(parsedTableName, parsedBuyerEmail);
-    const productIds = Object.keys(
-      buyer.buyerCartDetails ?? {}
-    ) as Array<ProductId>;
-    const buyerCartProducts =
-      productIds.length > 0
-        ? await getCartProductsFromOpenSearchIndex(parsedIndexName, productIds)
-        : [];
+    const productIds = Object.keys(buyer.buyerCartDetails) as Array<ProductId>;
+    const buyerCartProducts = await getCartProductsFromOpenSearchIndex(
+      parsedIndexName,
+      productIds
+    );
     return {
       statusCode: 200,
       body: JSON.stringify({
