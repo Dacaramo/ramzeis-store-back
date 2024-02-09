@@ -6,13 +6,6 @@
       "type": "string",
       "format": "email"
     },
-    "buyerName": {
-      "type": "string"
-    },
-    "buyerPhoneNumber": {
-      "type": "string",
-      "pattern": "^\\+"
-    },
     "buyerCartDetails": {
       "type": "object",
       "additionalProperties": {
@@ -53,10 +46,16 @@
             "type": "object"
           }
         },
+        "required": [
+          "documentName",
+          "documentVersion",
+          "acceptanceTimestamp",
+          "acceptanceDeviceDetails"
+        ],
         "additionalProperties": false
       }
     }
   },
-  "required": ["buyerEmail", "buyerAgreements"],
+  "required": ["buyerEmail", "buyerCartDetails", "buyerAgreements"],
   "additionalProperties": false
 }

@@ -69,7 +69,19 @@ functions:
             parameters:
               paths:
                 buyerEmail: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-address'
     iamRoleStatements:
       - Effect: Allow
@@ -91,7 +103,19 @@ functions:
               paths:
                 buyerEmail: true
                 addressId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'delete-address'
     iamRoleStatements:
       - Effect: Allow
@@ -114,7 +138,19 @@ functions:
               querystrings:
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-addresses-per-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -137,7 +173,19 @@ functions:
               paths:
                 buyerEmail: true
                 addressId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-address'
     iamRoleStatements:
       - Effect: Allow
@@ -156,7 +204,19 @@ functions:
           request:
             schemas:
               application/json: ${file(src/endpoints/buyers/createBuyer/createBuyer.request.schema.json)}
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -180,7 +240,19 @@ functions:
             parameters:
               paths:
                 buyerEmail: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'delete-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -206,7 +278,19 @@ functions:
             parameters:
               paths:
                 buyerEmail: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -236,7 +320,19 @@ functions:
             parameters:
               paths:
                 buyerEmail: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -255,7 +351,19 @@ functions:
           request:
             schemas:
               application/json: ${file(src/endpoints/orders/createOrder/createOrder.request.schema.json)}
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-order'
     iamRoleStatements:
       - Effect: Allow
@@ -281,7 +389,19 @@ functions:
                 statusId: false
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-orders'
     iamRoleStatements:
       - Effect: Allow
@@ -304,7 +424,19 @@ functions:
               querystrings:
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-orders-per-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -324,7 +456,19 @@ functions:
             parameters:
               paths:
                 localeId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-order-statuses'
     iamRoleStatements:
       - Effect: Allow
@@ -346,7 +490,19 @@ functions:
             parameters:
               paths:
                 orderId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-order'
     iamRoleStatements:
       - Effect: Allow
@@ -368,7 +524,19 @@ functions:
             parameters:
               paths:
                 buyerStripeCustomerId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-setup-intent'
     tags:
       triggered-entity: payment-method
@@ -383,7 +551,19 @@ functions:
             parameters:
               paths:
                 stripePaymentMethodId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'detach-payment-method'
     tags:
       triggered-entity: payment-method
@@ -401,7 +581,19 @@ functions:
               querystrings:
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-payment-methods-per-buyer'
     tags:
       triggered-entity: payment-method
@@ -418,7 +610,19 @@ functions:
             parameters:
               paths:
                 stripePaymentMethodId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-payment-method'
     tags:
       triggered-entity: payment-method
@@ -432,7 +636,19 @@ functions:
           request:
             schemas:
               application/json: ${file(src/endpoints/products/createProduct/createProduct.request.schema.json)}
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-product'
     iamRoleStatements:
       - Effect: Allow
@@ -456,7 +672,19 @@ functions:
             parameters:
               paths:
                 localeId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-product-categories'
     iamRoleStatements:
       - Effect: Allow
@@ -476,7 +704,19 @@ functions:
             parameters:
               paths:
                 localeId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-product-colors'
     iamRoleStatements:
       - Effect: Allow
@@ -508,7 +748,19 @@ functions:
                 limit: false
                 sort: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-products'
     iamRoleStatements:
       - Effect: Allow
@@ -529,7 +781,19 @@ functions:
               paths:
                 localeId: true
                 productId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-single-product'
     iamRoleStatements:
       - Effect: Allow
@@ -551,7 +815,19 @@ functions:
             parameters:
               paths:
                 productId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-product'
     iamRoleStatements:
       - Effect: Allow
@@ -578,7 +854,19 @@ functions:
             parameters:
               paths:
                 productId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'create-review'
     iamRoleStatements:
       - Effect: Allow
@@ -603,7 +891,19 @@ functions:
               paths:
                 productId: true
                 reviewId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'delete-review'
     iamRoleStatements:
       - Effect: Allow
@@ -630,7 +930,19 @@ functions:
               querystrings:
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-reviews-per-buyer'
     iamRoleStatements:
       - Effect: Allow
@@ -653,7 +965,19 @@ functions:
               querystrings:
                 limit: false
                 encodedExclusiveStartKey: false
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-reviews-per-product'
     iamRoleStatements:
       - Effect: Allow
@@ -676,7 +1000,19 @@ functions:
               paths:
                 productId: true
                 reviewId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'update-review'
     iamRoleStatements:
       - Effect: Allow
@@ -701,7 +1037,19 @@ functions:
             parameters:
               paths:
                 localeId: true
-          cors: true
+          cors:
+            origins:
+              - http://152.203.177.63:3000
+              - https://store.ramzeis.com
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-Amzn-Trace-Id
+              - X-Forwarded-For
           operationId: 'get-supported-locales'
     iamRoleStatements:
       - Effect: Allow
