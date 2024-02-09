@@ -52,10 +52,7 @@ export const handler: APIGatewayProxyHandler = async (
     await createBuyerOnDdbTable(parsedTableName, parsedBuyer);
     return {
       statusCode: 201,
-      body: JSON.stringify({
-        buyerStripeCustomerId: parsedBuyer.buyerStripeCustomerId,
-        buyerAgreements: parsedBuyer.buyerAgreements,
-      }),
+      body: JSON.stringify(parsedBuyer),
     };
   } catch (error: unknown) {
     return inferRequestResponseFromError(error);
