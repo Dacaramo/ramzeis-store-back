@@ -40,7 +40,7 @@ export const handler: APIGatewayProxyHandler = async (
     return {
       statusCode: 201,
       body: JSON.stringify({
-        message: `The buyer [${buyerEmail}] was created successfully`,
+        buyerStripeCustomerId: parsedBuyer.buyerStripeCustomerId,
       }),
     };
   } catch (error: unknown) {
