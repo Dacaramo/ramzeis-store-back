@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (
     const requestBody = JSON.parse(event.body!) as {
       buyerEmail: Buyer['pk'];
       buyerCartDetails?: Buyer['buyerCartDetails'];
-      buyerAgreements: Buyer['buyerAgreements'];
+      buyerAgreements: Omit<Buyer['buyerAgreements'], 'acceptanceIP'>;
     };
     const buyerEmail = requestBody.buyerEmail;
 
@@ -26,12 +26,25 @@ export const handler: APIGatewayProxyHandler = async (
 
     const stripeCustomer = await createBuyerOnStripe(parsedBuyerEmail);
 
+    let clientIP;
+    if (event.headers && event.headers['X-Forwarded-For']) {
+      const forwardedFor = event.headers['X-Forwarded-For'];
+      clientIP = forwardedFor.split(',')[0].trim();
+    } else {
+      clientIP = event.requestContext.identity.sourceIp;
+    }
+
     const buyer: Buyer = {
       pk: parsedBuyerEmail,
       sk: 'N/A',
       buyerCartDetails: requestBody.buyerCartDetails ?? {},
       buyerStripeCustomerId: stripeCustomer.id,
-      buyerAgreements: requestBody.buyerAgreements,
+      buyerAgreements: [
+        {
+          ...requestBody.buyerAgreements[0],
+          acceptanceIP: clientIP,
+        },
+      ],
     };
     /* Additional validation, since it is already validated by API Gateway */
     const parsedBuyer = parse(buyerSchema, buyer);
@@ -41,6 +54,7 @@ export const handler: APIGatewayProxyHandler = async (
       statusCode: 201,
       body: JSON.stringify({
         buyerStripeCustomerId: parsedBuyer.buyerStripeCustomerId,
+        buyerAgreements: parsedBuyer.buyerAgreements,
       }),
     };
   } catch (error: unknown) {
