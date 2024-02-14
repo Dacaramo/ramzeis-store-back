@@ -1,18 +1,14 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { parse } from 'valibot';
 import { productIdSchema } from '../../../model/Product';
 import { reviewIdSchema } from '../../../model/Review';
 import { tableNameSchema } from '../../../model/otherSchemas';
 import { deleteReviewFromDdbTable } from './helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const deleteReview = async (event: APIGatewayProxyEvent) => {
   try {
     const productId = event.pathParameters?.productId;
     const reviewId = event.pathParameters?.reviewId;
@@ -37,3 +33,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(deleteReview);

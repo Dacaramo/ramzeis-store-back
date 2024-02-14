@@ -31,6 +31,8 @@
   },
   "dependencies": {
     "@google-cloud/translate": "^8.0.2",
+    "@middy/core": "^5.2.4",
+    "@middy/http-cors": "^5.2.4",
     "@opensearch-project/opensearch": "^2.4.0",
     "stripe": "^14.11.0"
   }

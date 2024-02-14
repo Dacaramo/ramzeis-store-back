@@ -1,6 +1,6 @@
 import { Product } from '../../../model/Product';
 import { openSearchClient } from '../../../clients/openSearchClient';
-import { getSupportedLocales } from '../../helpers';
+import { getSupportedLocalesFromDdbTable } from '../../helpers';
 import { ClientError } from '../../../model/Error';
 
 export const createProductOnOpenSearchIndex = async (
@@ -25,7 +25,7 @@ export const validateSupportedLocaleIds = async (
   idsToValidate: Array<string>
 ): Promise<Array<string>> => {
   try {
-    const supportedLocales = await getSupportedLocales(tableName);
+    const supportedLocales = await getSupportedLocalesFromDdbTable(tableName);
     const supportedLocaleIds = supportedLocales.map(({ id }) => id);
     if (idsToValidate.every((id) => supportedLocaleIds.includes(id))) {
       throw new ClientError(

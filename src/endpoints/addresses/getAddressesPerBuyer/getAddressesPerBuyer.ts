@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getAddressesPerBuyerFromDdbTable } from './helpers';
 import { buyerEmailSchema } from '../../../model/Buyer';
 import { parse } from 'valibot';
@@ -12,10 +8,10 @@ import {
   AddressFilterValues,
   addressFilterValuesSchema,
 } from '../../../model/Address';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const getAddressesPerBuyer = async (event: APIGatewayProxyEvent) => {
   try {
     const defaultLimit = 5;
     const buyerEmail = event.pathParameters?.buyerEmail;
@@ -46,3 +42,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getAddressesPerBuyer);

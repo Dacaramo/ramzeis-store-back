@@ -71,7 +71,7 @@ functions:
                 buyerEmail: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -105,7 +105,7 @@ functions:
                 addressId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -140,7 +140,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -175,7 +175,7 @@ functions:
                 addressId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -206,7 +206,7 @@ functions:
               application/json: ${file(src/endpoints/buyers/createBuyer/createBuyer.request.schema.json)}
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -242,7 +242,7 @@ functions:
                 buyerEmail: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -280,7 +280,7 @@ functions:
                 buyerEmail: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -322,7 +322,7 @@ functions:
                 buyerEmail: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -353,7 +353,7 @@ functions:
               application/json: ${file(src/endpoints/orders/createOrder/createOrder.request.schema.json)}
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -391,7 +391,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -426,7 +426,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -458,7 +458,7 @@ functions:
                 localeId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -492,7 +492,7 @@ functions:
                 orderId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -526,7 +526,7 @@ functions:
                 buyerStripeCustomerId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -553,7 +553,7 @@ functions:
                 stripePaymentMethodId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -583,7 +583,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -612,7 +612,7 @@ functions:
                 stripePaymentMethodId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -638,7 +638,7 @@ functions:
               application/json: ${file(src/endpoints/products/createProduct/createProduct.request.schema.json)}
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -674,7 +674,7 @@ functions:
                 localeId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -706,7 +706,7 @@ functions:
                 localeId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -750,7 +750,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -783,7 +783,7 @@ functions:
                 productId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -817,7 +817,7 @@ functions:
                 productId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -856,7 +856,7 @@ functions:
                 productId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -893,7 +893,7 @@ functions:
                 reviewId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -932,7 +932,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -967,7 +967,7 @@ functions:
                 encodedExclusiveStartKey: false
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -1002,7 +1002,7 @@ functions:
                 reviewId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type
@@ -1039,7 +1039,7 @@ functions:
                 localeId: true
           cors:
             origins:
-              - http://152.203.177.63:3000
+              - http://localhost:3000
               - https://store.ramzeis.com
             headers:
               - Content-Type

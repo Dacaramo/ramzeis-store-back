@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyHandler,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { buyerStripeCustomerIdSchema } from '../../../model/Buyer';
 import { optional, parse } from 'valibot';
@@ -11,10 +7,12 @@ import {
   limitSchema,
 } from '../../../model/otherSchemas';
 import { getPaymentMethodsPerBuyerFromStripe } from './helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
+export const getPaymentMethodsPerBuyer = async (
   event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+) => {
   try {
     const defaultLimit = 5;
     const buyerStripeCustomerId = event.pathParameters?.buyerStripeCustomerId;
@@ -48,3 +46,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getPaymentMethodsPerBuyer);

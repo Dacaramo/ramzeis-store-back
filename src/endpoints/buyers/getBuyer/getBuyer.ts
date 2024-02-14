@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { parse } from 'valibot';
 import { buyerEmailSchema } from '../../../model/Buyer';
 import { indexNameSchema, tableNameSchema } from '../../../model/otherSchemas';
@@ -12,10 +8,10 @@ import {
 } from './helpers';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { ProductId } from '../../../model/Product';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const getBuyer = async (event: APIGatewayProxyEvent) => {
   try {
     const buyerEmail = event.pathParameters?.buyerEmail;
     const tableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
@@ -42,3 +38,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getBuyer);

@@ -1,4 +1,4 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { tableNameSchema } from '../../../model/otherSchemas';
 import { parse } from 'valibot';
@@ -10,10 +10,10 @@ import {
 import { Order, orderSchema } from '../../../model/Order';
 import * as crypto from 'crypto';
 import { validateOrderStatusId } from '../helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-) => {
+const createOrder = async (event: APIGatewayProxyEvent) => {
   try {
     const defaultCurrency = 'usd';
     const mainTableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
@@ -55,3 +55,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(createOrder);

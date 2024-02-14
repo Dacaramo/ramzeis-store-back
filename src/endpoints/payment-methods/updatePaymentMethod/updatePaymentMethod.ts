@@ -1,16 +1,12 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyHandler,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { parse } from 'valibot';
 import { stripePaymentMethodIdSchema } from '../../../model/otherSchemas';
 import { updatePaymentMethodOnStripe } from './helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const updatePaymentMethod = async (event: APIGatewayProxyEvent) => {
   try {
     const stripePaymentMethodId = event.pathParameters?.stripePaymentMethodId;
     const patch = JSON.parse(event.body!);
@@ -31,3 +27,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(updatePaymentMethod);

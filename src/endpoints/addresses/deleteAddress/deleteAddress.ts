@@ -1,18 +1,14 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { deleteAddressFromDdbTable } from './helpers';
 import { buyerEmailSchema } from '../../../model/Buyer';
 import { addressIdSchema } from '../../../model/Address';
 import { tableNameSchema } from '../../../model/otherSchemas';
 import { parse } from 'valibot';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const deleteAddress = async (event: APIGatewayProxyEvent) => {
   try {
     const buyerEmail = event.pathParameters?.buyerEmail;
     const addressId = event.pathParameters?.addressId;
@@ -37,3 +33,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(deleteAddress);

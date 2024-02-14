@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Address, addressSchema } from '../../../model/Address';
 import * as crypto from 'crypto';
 import { createAddressOnDdbTable, isAddressLimitUnreached } from './helpers';
@@ -11,12 +7,12 @@ import { tableNameSchema } from '../../../model/otherSchemas';
 import { parse } from 'valibot';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { ClientError } from '../../../model/Error';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
 const MAX_ADDRESSES = 5;
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const createAddress = async (event: APIGatewayProxyEvent) => {
   try {
     const buyerEmail = event.pathParameters?.buyerEmail;
     const tableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
@@ -56,3 +52,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(createAddress);

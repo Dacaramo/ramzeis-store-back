@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { parse } from 'valibot';
 import { productIdSchema } from '../../../model/Product';
 import { indexNameSchema, localeSchema } from '../../../model/otherSchemas';
@@ -11,10 +7,10 @@ import {
   translateProductNameAndDetails,
 } from './helpers';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const getSingleProduct = async (event: APIGatewayProxyEvent) => {
   try {
     const locale = event.pathParameters?.locale;
     const productId = event.pathParameters?.productId;
@@ -49,3 +45,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getSingleProduct);

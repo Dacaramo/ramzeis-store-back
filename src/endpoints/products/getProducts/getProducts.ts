@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import {
   Product,
@@ -18,10 +14,10 @@ import {
   translateToEnglish,
 } from './helpers';
 import { ListResponse } from '../../../model/ListResponse';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const getProducts = async (event: APIGatewayProxyEvent) => {
   try {
     const defaultLimit = 20;
     const defaultSort = 'asc';
@@ -100,3 +96,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getProducts);

@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { Product, productSchema } from '../../../model/Product';
 import * as crypto from 'crypto';
@@ -16,10 +12,10 @@ import {
   validateProductCategoryIdAndSubcategoryId,
   validateProductColorId,
 } from '../helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const createProduct = async (event: APIGatewayProxyEvent) => {
   try {
     const indexName = process.env.OPENSEARCH_PRODUCTS_INDEX_NAME;
     const tableName = process.env.DYNAMODB_SECONDARY_TABLE_NAME;
@@ -61,3 +57,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(createProduct);

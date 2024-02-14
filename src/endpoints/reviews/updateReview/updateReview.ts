@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { parse } from 'valibot';
 import {
   ReviewPatch,
@@ -13,10 +9,10 @@ import { productIdSchema } from '../../../model/Product';
 import { tableNameSchema } from '../../../model/otherSchemas';
 import { updateReviewOnDdbTable } from './helpers';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const updateReview = async (event: APIGatewayProxyEvent) => {
   const productId = event.pathParameters?.productId;
   const reviewId = event.pathParameters?.reviewId;
   const tableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
@@ -45,3 +41,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(updateReview);

@@ -3,7 +3,7 @@ import ddbDocClient from '../clients/ddbDocClient';
 import { ClientError, ThirdPartyServerError } from '../model/Error';
 import { Locale } from '../model/Locale';
 
-export const getSupportedLocales = async (
+export const getSupportedLocalesFromDdbTable = async (
   tableName: string
 ): Promise<Array<Locale>> => {
   try {
@@ -37,7 +37,7 @@ export const validateLocaleId = async (
   localeId: string
 ): Promise<string> => {
   try {
-    const supportedLocales = await getSupportedLocales(tableName);
+    const supportedLocales = await getSupportedLocalesFromDdbTable(tableName);
     const supportedLocaleIds = supportedLocales.map(({ id }) => id);
     if (!supportedLocaleIds.includes(localeId)) {
       throw new ClientError(

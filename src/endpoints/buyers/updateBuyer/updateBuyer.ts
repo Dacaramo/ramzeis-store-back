@@ -1,18 +1,14 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { BuyerPatch, buyerPatchSchema } from '../../../model/Buyer';
 import { parse } from 'valibot';
 import { buyerEmailSchema } from '../../../model/Buyer';
 import { tableNameSchema } from '../../../model/otherSchemas';
 import { updateBuyerOnDdbTable } from './helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const updateBuyer = async (event: APIGatewayProxyEvent) => {
   try {
     const buyerEmail = event.pathParameters?.buyerId;
     const tableName = process.env.DYNAMODB_MAIN_TABLE_NAME;
@@ -34,3 +30,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(updateBuyer);

@@ -1,8 +1,4 @@
-import {
-  APIGatewayProxyHandler,
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { parse } from 'valibot';
 import { buyerEmailSchema } from '../../../model/Buyer';
@@ -12,10 +8,10 @@ import {
   ReviewFilterValues,
   reviewFilterValuesSchema,
 } from '../../../model/Review';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const getReviewsPerBuyer = async (event: APIGatewayProxyEvent) => {
   try {
     const defaultLimit = 5;
     const buyerEmail = event.pathParameters?.buyerEmail;
@@ -46,3 +42,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(getReviewsPerBuyer);

@@ -1,17 +1,13 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyHandler,
-  APIGatewayProxyResult,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 import { inferRequestResponseFromError } from '../../../utils/inferRequestResponseFromError';
 import { parse } from 'valibot';
 import { stripePaymentMethodIdSchema } from '../../../model/otherSchemas';
 import { buyerStripeCustomerIdSchema } from '../../../model/Buyer';
 import { createSetupIntentOnStripe } from './helpers';
+import middy from '@middy/core';
+import cors from '@middy/http-cors';
 
-export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+const createSetupIntent = async (event: APIGatewayProxyEvent) => {
   try {
     const buyerStripeCustomerId =
       event.queryStringParameters?.buyerStripeCustomerId;
@@ -44,3 +40,5 @@ export const handler: APIGatewayProxyHandler = async (
     return inferRequestResponseFromError(error);
   }
 };
+
+export const handler = middy().use(cors()).handler(createSetupIntent);
